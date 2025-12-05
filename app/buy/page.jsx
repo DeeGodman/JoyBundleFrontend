@@ -1,22 +1,35 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert" // Added Alert import
-import { Loader2, CheckCircle2, AlertTriangle, Menu, HelpCircle, Search } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { cn, NETWORKS, formatCurrency } from "@/lib/utils"
-import Link from "next/link" // Added Link import
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Added Alert import
+import {
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  Menu,
+  HelpCircle,
+  Search,
+} from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn, NETWORKS, formatCurrency } from "@/lib/utils";
+import Link from "next/link"; // Added Link import
 
 // Mock API function
 const fetchBundles = async () => {
   // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   return [
     { id: 1, name: "1GB Data", price: 15, network: "mtn" },
     { id: 2, name: "2GB Data", price: 28, network: "mtn" },
@@ -24,62 +37,67 @@ const fetchBundles = async () => {
     { id: 4, name: "1GB Data", price: 14, network: "telecel" },
     { id: 5, name: "5GB Data", price: 55, network: "telecel" },
     { id: 6, name: "10GB Data", price: 100, network: "at" },
-  ]
-}
+  ];
+};
 
 export default function BuyPage() {
-  const [step, setStep] = useState(1) // 1: Network, 2: Bundle, 3: Details, 4: Payment, 5: Success
-  const [selectedNetwork, setSelectedNetwork] = useState(null)
-  const [selectedBundle, setSelectedBundle] = useState(null)
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [processing, setProcessing] = useState(false)
+  const [step, setStep] = useState(1); // 1: Network, 2: Bundle, 3: Details, 4: Payment, 5: Success
+  const [selectedNetwork, setSelectedNetwork] = useState(null);
+  const [selectedBundle, setSelectedBundle] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [processing, setProcessing] = useState(false);
 
   const { data: bundles, isLoading } = useQuery({
     queryKey: ["bundles"],
     queryFn: fetchBundles,
-  })
+  });
 
-  const filteredBundles = bundles?.filter((b) => b.network === selectedNetwork) || []
+  const filteredBundles =
+    bundles?.filter((b) => b.network === selectedNetwork) || [];
 
   const handleNetworkSelect = (networkId) => {
-    setSelectedNetwork(networkId)
-    setStep(2)
-  }
+    setSelectedNetwork(networkId);
+    setStep(2);
+  };
 
   const handleBundleSelect = (bundle) => {
-    setSelectedBundle(bundle)
-    setStep(3)
-  }
+    setSelectedBundle(bundle);
+    setStep(3);
+  };
 
   const handlePayment = async (e) => {
-    e.preventDefault()
-    setProcessing(true)
+    e.preventDefault();
+    setProcessing(true);
     // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setProcessing(false)
-    setStep(5)
-  }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setProcessing(false);
+    setStep(5);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="Joy Data" className="h-8 w-8 rounded border border-slate-100" />
+            <img
+              src="/logo.jpg"
+              alt="Joy Data"
+              className="h-8 w-8 rounded border border-slate-100"
+            />
             <span className="font-bold text-lg text-slate-900">Joy Online</span>
           </div>
-          
+
           {/* Desktop Nav */}
           <nav className="hidden sm:flex items-center gap-4">
-            <Link 
-              href="/track-order" 
+            <Link
+              href="/track-order"
               className="text-sm font-medium text-slate-600 hover:text-cyan-600 transition-colors flex items-center gap-1"
             >
               <Search className="h-4 w-4" />
               Track Order
             </Link>
-            <Link 
-              href="/support" 
+            <Link
+              href="/support"
               className="text-sm font-medium text-slate-600 hover:text-cyan-600 transition-colors flex items-center gap-1"
             >
               <HelpCircle className="h-4 w-4" />
@@ -97,11 +115,17 @@ export default function BuyPage() {
               </SheetTrigger>
               <SheetContent side="right">
                 <div className="flex flex-col gap-6 mt-8">
-                  <Link href="/track-order" className="font-medium text-lg flex items-center gap-2">
+                  <Link
+                    href="/track-order"
+                    className="font-medium text-lg flex items-center gap-2"
+                  >
                     <Search className="h-5 w-5" />
                     Track Order
                   </Link>
-                  <Link href="/support" className="font-medium text-lg flex items-center gap-2">
+                  <Link
+                    href="/support"
+                    className="font-medium text-lg flex items-center gap-2"
+                  >
                     <HelpCircle className="h-5 w-5" />
                     Support
                   </Link>
@@ -121,7 +145,9 @@ export default function BuyPage() {
                 <div
                   className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
-                    step >= i ? "bg-primary text-primary-foreground" : "bg-slate-200 text-slate-500",
+                    step >= i
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-slate-200 text-slate-500",
                   )}
                 >
                   {step > i ? <CheckCircle2 className="w-5 h-5" /> : i}
@@ -143,7 +169,8 @@ export default function BuyPage() {
               </CardTitle>
               <CardDescription>
                 {step === 1 && "Which network do you want to top up?"}
-                {step === 2 && `Available bundles for ${NETWORKS.find((n) => n.id === selectedNetwork)?.name}`}
+                {step === 2 &&
+                  `Available bundles for ${NETWORKS.find((n) => n.id === selectedNetwork)?.name}`}
                 {step === 3 && "Enter the recipient phone number"}
                 {step === 5 && "Your data is on its way!"}
               </CardDescription>
@@ -186,15 +213,24 @@ export default function BuyPage() {
                           onClick={() => handleBundleSelect(bundle)}
                           className="flex items-center justify-between p-4 rounded-lg border hover:border-primary hover:bg-blue-50 transition-all bg-white group"
                         >
-                          <span className="font-medium group-hover:text-primary">{bundle.name}</span>
-                          <Badge variant="secondary" className="text-base px-3 py-1">
+                          <span className="font-medium group-hover:text-primary">
+                            {bundle.name}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="text-base px-3 py-1"
+                          >
                             {formatCurrency(bundle.price)}
                           </Badge>
                         </button>
                       ))}
                     </div>
                   )}
-                  <Button variant="ghost" className="w-full" onClick={() => setStep(1)}>
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setStep(1)}
+                  >
                     Back to Networks
                   </Button>
                 </div>
@@ -206,10 +242,17 @@ export default function BuyPage() {
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-500">Network</span>
                       <span className="flex items-center gap-2 font-medium">
-                        {NETWORKS.find((n) => n.id === selectedNetwork)?.logo && (
+                        {NETWORKS.find((n) => n.id === selectedNetwork)
+                          ?.logo && (
                           <img
-                            src={NETWORKS.find((n) => n.id === selectedNetwork)?.logo}
-                            alt={NETWORKS.find((n) => n.id === selectedNetwork)?.name}
+                            src={
+                              NETWORKS.find((n) => n.id === selectedNetwork)
+                                ?.logo
+                            }
+                            alt={
+                              NETWORKS.find((n) => n.id === selectedNetwork)
+                                ?.name
+                            }
                             className="h-5 w-5 rounded-full border border-slate-200 bg-white object-contain"
                           />
                         )}
@@ -218,21 +261,31 @@ export default function BuyPage() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500">Bundle</span>
-                      <span className="font-medium">{selectedBundle?.name}</span>
+                      <span className="font-medium">
+                        {selectedBundle?.name}
+                      </span>
                     </div>
                     <div className="border-t pt-2 mt-2 flex justify-between">
                       <span className="font-bold">Total</span>
-                      <span className="font-bold text-primary text-lg">{formatCurrency(selectedBundle?.price)}</span>
+                      <span className="font-bold text-primary text-lg">
+                        {formatCurrency(selectedBundle?.price)}
+                      </span>
                     </div>
                   </div>
 
-                  <Alert variant="destructive" className="bg-amber-50 text-amber-900 border-amber-200">
+                  <Alert
+                    variant="destructive"
+                    className="bg-amber-50 text-amber-900 border-amber-200"
+                  >
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    <AlertTitle className="text-amber-800">Important Warning</AlertTitle>
+                    <AlertTitle className="text-amber-800">
+                      Important Warning
+                    </AlertTitle>
                     <AlertDescription className="text-xs leading-relaxed mt-1">
-                      Please double-check the phone number below. The platform is <strong>not responsible</strong> for
-                      bundles sent to the wrong number due to user error. Transactions cannot be reversed once
-                      processed.
+                      Please double-check the phone number below. The platform
+                      is <strong>not responsible</strong> for bundles sent to
+                      the wrong number due to user error. Transactions cannot be
+                      reversed once processed.
                     </AlertDescription>
                   </Alert>
 
@@ -247,7 +300,9 @@ export default function BuyPage() {
                       required
                       pattern="[0-9]{10}"
                     />
-                    <p className="text-xs text-slate-500">Please ensure this number is registered on Mobile Money.</p>
+                    <p className="text-xs text-slate-500">
+                      Please ensure this number is registered on Mobile Money.
+                    </p>
                   </div>
 
                   <div className="flex gap-3">
@@ -259,7 +314,11 @@ export default function BuyPage() {
                     >
                       Back
                     </Button>
-                    <Button type="submit" className="flex-1" disabled={!phoneNumber || processing}>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={!phoneNumber || processing}
+                    >
                       {processing ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -281,18 +340,18 @@ export default function BuyPage() {
                   <div className="space-y-1">
                     <h3 className="font-bold text-xl">Payment Successful!</h3>
                     <p className="text-slate-500 max-w-[260px] mx-auto">
-                      Your {selectedBundle?.name} bundle is being processed and will be delivered to {phoneNumber}{" "}
-                      shortly.
+                      Your {selectedBundle?.name} bundle is being processed and
+                      will be delivered to {phoneNumber} shortly.
                     </p>
                   </div>
                   <div className="pt-4 w-full">
                     <Button
                       className="w-full"
                       onClick={() => {
-                        setStep(1)
-                        setPhoneNumber("")
-                        setSelectedNetwork(null)
-                        setSelectedBundle(null)
+                        setStep(1);
+                        setPhoneNumber("");
+                        setSelectedNetwork(null);
+                        setSelectedBundle(null);
                       }}
                     >
                       Buy Another
@@ -305,5 +364,5 @@ export default function BuyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
