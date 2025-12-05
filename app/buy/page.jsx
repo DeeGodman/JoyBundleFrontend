@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Added Alert import
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Loader2,
   CheckCircle2,
@@ -24,19 +24,21 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn, NETWORKS, formatCurrency } from "@/lib/utils";
-import Link from "next/link"; // Added Link import
+import Link from "next/link";
+import axios from "axios"; // ⬅️ NEW: Import axios for API calls
+import { useToast } from "@/components/ui/use-toast"; // ⬅️ NEW: Import toast for feedback
 
-// Mock API function
 const fetchBundles = async () => {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return [
-    { id: 1, name: "1GB Data", price: 15, network: "mtn" },
-    { id: 2, name: "2GB Data", price: 28, network: "mtn" },
-    { id: 3, name: "5GB Data", price: 60, network: "mtn" },
-    { id: 4, name: "1GB Data", price: 14, network: "telecel" },
-    { id: 5, name: "5GB Data", price: 55, network: "telecel" },
-    { id: 6, name: "10GB Data", price: 100, network: "at" },
+    // Changed 'id' to '_id' to match MongoDB structure expected by backend
+    { _id: "mock-id-1", name: "1GB Data", price: 15, network: "mtn" },
+    { _id: "mock-id-2", name: "2GB Data", price: 28, network: "mtn" },
+    { _id: "mock-id-3", name: "5GB Data", price: 60, network: "mtn" },
+    { _id: "mock-id-4", name: "1GB Data", price: 14, network: "telecel" },
+    { _id: "mock-id-5", name: "5GB Data", price: 55, network: "telecel" },
+    { _id: "mock-id-6", name: "10GB Data", price: 100, network: "at" },
   ];
 };
 
@@ -46,6 +48,7 @@ export default function BuyPage() {
   const [selectedBundle, setSelectedBundle] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [processing, setProcessing] = useState(false);
+  const { toast } = useToast(); // ⬅️ NEW: Initialize toast
 
   const { data: bundles, isLoading } = useQuery({
     queryKey: ["bundles"],
@@ -65,13 +68,67 @@ export default function BuyPage() {
     setStep(3);
   };
 
+  // ⬇️ UPDATED: This function now calls the backend API and redirects to Paystack
   const handlePayment = async (e) => {
     e.preventDefault();
     setProcessing(true);
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setProcessing(false);
-    setStep(5);
+
+    try {
+      // 1. Get the Reseller Reference from the URL
+      const params = new URLSearchParams(window.location.search);
+      const refCode = params.get("ref") || "DIRECT";
+
+      // 2. Validate essential data
+      if (!selectedBundle?._id || !phoneNumber) {
+        toast({
+          title: "Error",
+          description: "Missing bundle or phone number.",
+          variant: "destructive",
+        });
+        setProcessing(false);
+        return;
+      }
+
+      // 3. Call Backend to Create Order and Initialize Paystack
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/orders?ref=${refCode}`, // Use API prefix
+        {
+          bundleId: selectedBundle._id, // Send the bundle ID to the backend
+          customerPhone: phoneNumber, // Send the recipient phone number
+          email: "customer@joybundle.com", // A placeholder email (can be improved later)
+          paymentMethod: "mobile_money", // Defaulting to Mobile Money
+        },
+      );
+
+      // 4. Handle Success response
+      if (response.data.success && response.data.paymentUrl) {
+        // Redirect the user to the Paystack checkout URL
+        window.location.href = response.data.paymentUrl;
+      } else {
+        // If API call succeeded but didn't return a payment URL
+        toast({
+          title: "Payment Error",
+          description:
+            response.data.message || "Failed to initialize payment link.",
+          variant: "destructive",
+        });
+        setProcessing(false);
+      }
+    } catch (error) {
+      console.error("Payment Initiation Failed:", error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        "An unexpected error occurred. Please try again.";
+
+      toast({
+        title: "Purchase Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setProcessing(false);
+    }
+    // Note: setProcessing(false) is only called on error, as success results in a redirect
   };
 
   return (
@@ -209,7 +266,7 @@ export default function BuyPage() {
                     <div className="grid grid-cols-1 gap-3">
                       {filteredBundles.map((bundle) => (
                         <button
-                          key={bundle.id}
+                          key={bundle._id} // ⬅️ UPDATED: Using _id
                           onClick={() => handleBundleSelect(bundle)}
                           className="flex items-center justify-between p-4 rounded-lg border hover:border-primary hover:bg-blue-50 transition-all bg-white group"
                         >
@@ -322,7 +379,7 @@ export default function BuyPage() {
                       {processing ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Processing
+                          Initiating Payment...
                         </>
                       ) : (
                         "Pay Now"
