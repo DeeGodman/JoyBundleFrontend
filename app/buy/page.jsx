@@ -33,7 +33,7 @@ const fetchBundles = async () => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return [
     // Changed 'id' to '_id' to match MongoDB structure expected by backend
-    { _id: "mock-id-1", name: "1GB Data", price: 15, network: "mtn" },
+    { _id: "mock-id-1", name: "1iGB Data", price: 15, network: "mtn" },
     { _id: "mock-id-2", name: "2GB Data", price: 28, network: "mtn" },
     { _id: "mock-id-3", name: "5GB Data", price: 60, network: "mtn" },
     { _id: "mock-id-4", name: "1GB Data", price: 14, network: "telecel" },
