@@ -91,7 +91,7 @@ export default function BuyPage() {
 
       // 3. Call Backend to Create Order and Initialize Paystack
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/orders?ref=${refCode}`, // Use API prefix
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders?ref=${refCode}`, // Use API prefix
         {
           bundleId: selectedBundle._id, // Send the bundle ID to the backend
           customerPhone: phoneNumber, // Send the recipient phone number
