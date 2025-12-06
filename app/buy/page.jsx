@@ -28,18 +28,28 @@ import Link from "next/link";
 import axios from "axios"; // ⬅️ NEW: Import axios for API calls
 import { useToast } from "@/components/ui/use-toast"; // ⬅️ NEW: Import toast for feedback
 
+//  Fetch Real Bundles from Backend
 const fetchBundles = async () => {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return [
-    // Changed 'id' to '_id' to match MongoDB structure expected by backend
-    { _id: "mock-id-1", name: "1iGB Data", price: 15, network: "mtn" },
-    { _id: "mock-id-2", name: "2GB Data", price: 28, network: "mtn" },
-    { _id: "mock-id-3", name: "5GB Data", price: 60, network: "mtn" },
-    { _id: "mock-id-4", name: "1GB Data", price: 14, network: "telecel" },
-    { _id: "mock-id-5", name: "5GB Data", price: 55, network: "telecel" },
-    { _id: "mock-id-6", name: "10GB Data", price: 100, network: "at" },
-  ];
+  try {
+    // 1. Call the Backend
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/bundles`,
+    );
+
+    // 2. Transform Data (Backend Schema -> Frontend UI Schema)
+    // Backend uses '_id', 'JBSP', 'network' (capitalized?)
+    // Frontend needs 'id', 'price', 'network' (lowercase for filtering)
+    return response.data.data.map((bundle) => ({
+      id: bundle._id, // MongoDB ID
+      name: bundle.name,
+      price: bundle.JBSP, // JoyBundle Selling Price
+      network: bundle.network.toLowerCase(), // Ensure 'mtn' matches 'mtn' in state
+      size: bundle.size, // Optional, if used
+    }));
+  } catch (error) {
+    console.error("Failed to fetch bundles:", error);
+    return []; // Return empty array on failure so UI doesn't crash
+  }
 };
 
 export default function BuyPage() {
