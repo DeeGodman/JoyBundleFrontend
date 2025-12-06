@@ -25,40 +25,37 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn, NETWORKS, formatCurrency } from "@/lib/utils";
 import Link from "next/link";
-import axios from "axios"; // ⬅️ NEW: Import axios for API calls
-import { useToast } from "@/components/ui/use-toast"; // ⬅️ NEW: Import toast for feedback
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
-//  Fetch Real Bundles from Backend
+// ✅ FETCH REAL DATA FROM BACKEND
 const fetchBundles = async () => {
   try {
-    // 1. Call the Backend
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/bundles`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/bundles`,
     );
 
-    // 2. Transform Data (Backend Schema -> Frontend UI Schema)
-    // Backend uses '_id', 'JBSP', 'network' (capitalized?)
-    // Frontend needs 'id', 'price', 'network' (lowercase for filtering)
+    // Map backend fields (JBSP, _id) to frontend UI
     return response.data.data.map((bundle) => ({
-      id: bundle._id, // MongoDB ID
+      id: bundle._id,
       name: bundle.name,
-      price: bundle.JBSP, // JoyBundle Selling Price
-      network: bundle.network.toLowerCase(), // Ensure 'mtn' matches 'mtn' in state
-      size: bundle.size, // Optional, if used
+      price: bundle.JBSP,
+      network: bundle.network.toLowerCase(),
+      size: bundle.size,
     }));
   } catch (error) {
     console.error("Failed to fetch bundles:", error);
-    return []; // Return empty array on failure so UI doesn't crash
+    return [];
   }
 };
 
 export default function BuyPage() {
-  const [step, setStep] = useState(1); // 1: Network, 2: Bundle, 3: Details, 4: Payment, 5: Success
+  const [step, setStep] = useState(1);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const [selectedBundle, setSelectedBundle] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [processing, setProcessing] = useState(false);
-  const { toast } = useToast(); // ⬅️ NEW: Initialize toast
+  const { toast } = useToast();
 
   const { data: bundles, isLoading } = useQuery({
     queryKey: ["bundles"],
@@ -78,18 +75,16 @@ export default function BuyPage() {
     setStep(3);
   };
 
-  // ⬇️ UPDATED: This function now calls the backend API and redirects to Paystack
+  // ✅ REAL PAYMENT HANDLER
   const handlePayment = async (e) => {
     e.preventDefault();
     setProcessing(true);
 
     try {
-      // 1. Get the Reseller Reference from the URL
       const params = new URLSearchParams(window.location.search);
-      const refCode = params.get("ref") || "DIRECT";
+      const refCode = params.get("ref");
 
-      // 2. Validate essential data
-      if (!selectedBundle?._id || !phoneNumber) {
+      if (!selectedBundle?.id || !phoneNumber) {
         toast({
           title: "Error",
           description: "Missing bundle or phone number.",
@@ -99,23 +94,21 @@ export default function BuyPage() {
         return;
       }
 
-      // 3. Call Backend to Create Order and Initialize Paystack
+      // Call Backend to Create Order
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders?ref=${refCode}`, // Use API prefix
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders?ref=${refCode || ""}`,
         {
-          bundleId: selectedBundle._id, // Send the bundle ID to the backend
-          customerPhone: phoneNumber, // Send the recipient phone number
-          email: "customer@joybundle.com", // A placeholder email (can be improved later)
-          paymentMethod: "mobile_money", // Defaulting to Mobile Money
+          bundleId: selectedBundle.id,
+          customerPhone: phoneNumber,
+          email: "customer@joybundle.com",
+          paymentMethod: "mobile_money",
         },
       );
 
-      // 4. Handle Success response
+      // Redirect to Paystack
       if (response.data.success && response.data.paymentUrl) {
-        // Redirect the user to the Paystack checkout URL
         window.location.href = response.data.paymentUrl;
       } else {
-        // If API call succeeded but didn't return a payment URL
         toast({
           title: "Payment Error",
           description:
@@ -126,10 +119,8 @@ export default function BuyPage() {
       }
     } catch (error) {
       console.error("Payment Initiation Failed:", error);
-
       const errorMessage =
-        error.response?.data?.message ||
-        "An unexpected error occurred. Please try again.";
+        error.response?.data?.message || "An unexpected error occurred.";
 
       toast({
         title: "Purchase Failed",
@@ -138,7 +129,6 @@ export default function BuyPage() {
       });
       setProcessing(false);
     }
-    // Note: setProcessing(false) is only called on error, as success results in a redirect
   };
 
   return (
@@ -154,7 +144,6 @@ export default function BuyPage() {
             <span className="font-bold text-lg text-slate-900">Joy Online</span>
           </div>
 
-          {/* Desktop Nav */}
           <nav className="hidden sm:flex items-center gap-4">
             <Link
               href="/track-order"
@@ -172,7 +161,6 @@ export default function BuyPage() {
             </Link>
           </nav>
 
-          {/* Mobile Nav */}
           <div className="sm:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -205,7 +193,6 @@ export default function BuyPage() {
 
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md py-8">
-          {/* Progress Steps */}
           <div className="flex justify-between mb-8 px-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex flex-col items-center gap-2">
@@ -276,7 +263,7 @@ export default function BuyPage() {
                     <div className="grid grid-cols-1 gap-3">
                       {filteredBundles.map((bundle) => (
                         <button
-                          key={bundle._id} // ⬅️ UPDATED: Using _id
+                          key={bundle.id}
                           onClick={() => handleBundleSelect(bundle)}
                           className="flex items-center justify-between p-4 rounded-lg border hover:border-primary hover:bg-blue-50 transition-all bg-white group"
                         >
