@@ -33,7 +33,7 @@ const refCode = "RES-001";
 const fetchBundles = async () => {
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/bundles/getBundleFromDb`,
+      `https://jbneworiginal.onrender.com/api/v1/bundles/getBundleFromDb`,
     );
 
     // Map backend fields (JBSP, _id) to frontend UI
