@@ -34,7 +34,8 @@ const refCode = "RES-001";
 const fetchBundles = async () => {
   try {
     // 1. Hardcode the URL for now to PROVE it works (Replace with your CURRENT Ngrok URL)
-    const currentApiUrl = "https://YOUR-NGROK-ID.ngrok-free.app";
+    const currentApiUrl =
+      "https://condescending-charlott-discernible.ngrok-free.dev";
     console.log("Fetching from:", currentApiUrl);
 
     // 2. Make the request
