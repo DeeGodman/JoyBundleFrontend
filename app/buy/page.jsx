@@ -57,6 +57,8 @@ const fetchBundles = async () => {
     return [];
   }
 };
+
+const bundleTest = fetchBundles();
 export default function BuyPage() {
   const [step, setStep] = useState(1);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
@@ -71,7 +73,7 @@ export default function BuyPage() {
   });
 
   const filteredBundles =
-    bundles?.filter((b) => b.network === selectedNetwork) || [];
+    bundleTest?.filter((b) => b.network === selectedNetwork) || [];
 
   const handleNetworkSelect = (networkId) => {
     setSelectedNetwork(networkId);
