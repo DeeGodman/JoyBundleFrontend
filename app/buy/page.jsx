@@ -39,16 +39,13 @@ const fetchBundles = async () => {
     console.log("Fetching from:", currentApiUrl);
 
     // 2. Make the request
-    const res = await axios.get(`${currentApiUrl}/api/v1/bundles`);
+    const res = await axios.get(
+      `${currentApiUrl}/api/v1/bundles/getBundleFromDb`,
+    );
 
     // 3. Return the mapped data
-    return res.data.data.map((bundle) => ({
-      id: bundle._id,
-      name: bundle.name,
-      price: bundle.JBSP,
-      network: bundle.network.toLowerCase(),
-      size: bundle.size,
-    }));
+    console.log("These are the bundles:", res.data.data);
+    return res.data.data;
   } catch (error) {
     // 🛑 STOP: Do not use 'response' or 'res' here. It does not exist if the request failed!
     console.error("Fetch Error:", error.message);
