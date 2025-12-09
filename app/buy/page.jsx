@@ -30,13 +30,18 @@ import { useToast } from "@/components/ui/use-toast";
 
 // ✅ FETCH REAL DATA FROM BACKEND
 const refCode = "RES-001";
+// ✅ Corrected fetchBundles
 const fetchBundles = async () => {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/bundles`,
-    );
-    // Map backend fields (JBSP, _id) to frontend UI
-    return response.data.data.map((bundle) => ({
+    // 1. Hardcode the URL for now to PROVE it works (Replace with your CURRENT Ngrok URL)
+    const currentApiUrl = "https://YOUR-NGROK-ID.ngrok-free.app";
+    console.log("Fetching from:", currentApiUrl);
+
+    // 2. Make the request
+    const res = await axios.get(`${currentApiUrl}/api/v1/bundles`);
+
+    // 3. Return the mapped data
+    return res.data.data.map((bundle) => ({
       id: bundle._id,
       name: bundle.name,
       price: bundle.JBSP,
@@ -44,11 +49,11 @@ const fetchBundles = async () => {
       size: bundle.size,
     }));
   } catch (error) {
-    console.error("Failed to fetch bundles:", error);
+    // 🛑 STOP: Do not use 'response' or 'res' here. It does not exist if the request failed!
+    console.error("Fetch Error:", error.message);
     return [];
   }
 };
-
 export default function BuyPage() {
   const [step, setStep] = useState(1);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
