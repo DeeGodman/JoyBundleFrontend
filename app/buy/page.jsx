@@ -41,13 +41,18 @@ const fetchBundles = async () => {
     // 2. Make the request
     const res = await axios.get(
       `${currentApiUrl}/api/v1/bundles/getBundleFromDb`,
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      },
     );
 
     // 3. Return the mapped data
     console.log("These are the bundles:", res.data.data);
     return res.data.data;
   } catch (error) {
-    // 🛑 STOP: Do not use 'response' or 'res' here. It does not exist if the request failed!
+    // STOP: Do not use 'response' or 'res' here. It does not exist if the request failed!
     console.error("Fetch Error:", error.message);
     return [];
   }
