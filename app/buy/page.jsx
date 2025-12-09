@@ -73,7 +73,7 @@ export default function BuyPage() {
   });
 
   const filteredBundles =
-    bundleTest?.filter((b) => b.network === selectedNetwork) || [];
+    bundleTest.filter((b) => b.network === selectedNetwork) || [];
 
   const handleNetworkSelect = (networkId) => {
     setSelectedNetwork(networkId);
