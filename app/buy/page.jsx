@@ -32,6 +32,9 @@ import { useToast } from "@/components/ui/use-toast";
 const refCode = "RES-001";
 const fetchBundles = async () => {
   try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/bundles`,
+    );
     // Map backend fields (JBSP, _id) to frontend UI
     return response.data.data.map((bundle) => ({
       id: bundle._id,
